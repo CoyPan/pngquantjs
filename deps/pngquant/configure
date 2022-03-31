@@ -460,6 +460,10 @@ conditional_cflags "-falign-stack=maintain-16-byte"
 
 lflags "-lm" # Ubuntu requires this library last, issue #38
 
+lflags "-s WARN_ON_UNDEFINED_SYMBOLS=0"
+
+lflags "-s ERROR_ON_UNDEFINED_SYMBOLS=0"
+
 if [ -n "$EXTRA_CFLAGS" ]; then
     cflags "$EXTRA_CFLAGS"
 fi

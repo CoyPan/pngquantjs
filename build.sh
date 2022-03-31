@@ -11,7 +11,7 @@ set -e
 
 # sourc directory of this script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DIST=$DIR/dist
+DIST=$DIR/dist2
 
 # Make sure dist exists
 mkdir -p $DIST
@@ -22,11 +22,12 @@ mkdir -p $DIST
 # emscripten folks. They are using libpng-16 so its emperative to use this version
 # when linking the header files to avoid disparities later
 
-apt-get install -y libpng16-dev
+# apt-get install -y libpng16-dev
+# brew install libpng
 
 # compile zlib
 cd $DIR/deps/pngquant/zlib
-emconfigure ./configure  --64
+./configure  --64 
 emmake make
 
 # change dir to deps
@@ -38,18 +39,26 @@ emconfigure ./configure --disable-sse --with-libpng=/usr/include
 # At this point just make sure that config.mk file points correct version of
 # libpng
 
-emmake make
+echo ">>>>>>>> emmake make"
+
+EXEEXT=.bc LDFLAGS="-s WASM=1" emmake make
 
 # pngquant Makefile is configured to create executable by the name of pngquant
 # But since we are using emscripten the file actually creted is bitecode file.
 # So we need to rename it
 
-mv pngquant pngquant.bc
+# mv pngquant pngquant.bc
+
+echo ">>>>>>>> emcc"
 
 # Time to rumble. Create our mighty js file
-emcc -03 pngquant.bc  -s TOTAL_MEMORY=335544323  -s USE_LIBPNG=1 -s USE_ZLIB=1  --pre-js ../../pre.js --post-js ../../post.js   -o pngquant.js
+# emcc -03 pngquant.o rwpng.o lib/libimagequant.o lib/blur.o lib/kmeans.o lib/mediancut.o lib/mempool.o lib/nearest.o lib/pam.o -s EXPORT_ALL=1 -s ALLOW_MEMORY_GROWTH=1 -s WARN_ON_UNDEFINED_SYMBOLS=0 -s WARN_ON_UNDEFINED_SYMBOLS=0 -s USE_LIBPNG=1 -s USE_ZLIB=1 --pre-js ../../pre.js --post-js ../../post.js -s WASM=1 -s ENVIRONMENT=web -o pngquant.html
+emcc -03 pngquant.o rwpng.o lib/libimagequant.o lib/blur.o lib/kmeans.o lib/mediancut.o lib/mempool.o lib/nearest.o lib/pam.o -s INVOKE_RUN=0 -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_ALL=1 -s WARN_ON_UNDEFINED_SYMBOLS=0 -s WARN_ON_UNDEFINED_SYMBOLS=0 -s USE_LIBPNG=1 -s MODULARIZE=1 -s EXPORT_NAME=Pngquant -s USE_ZLIB=1 -s WASM=1 -s ENVIRONMENT=worker -o pngquant.js
+
 
 # copy our js file to dist folder
 mv pngquant.js $DIST/pngquant.js
+mv pngquant.wasm $DIST/pngquant.wasm
+# mv pngquant.html $DIST/pngquant.html
 
 echo "pngquant.js has been successfully compiled  and placed in $DIST"

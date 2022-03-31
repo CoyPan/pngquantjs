@@ -1,9 +1,9 @@
-	var file = null;
+	var outputFile = null;
 
 	/* Test if processed image has been mounted at input-new.png */
 	try {
 		/* read processed image data in file var */
-		file = FS.readFile("/input-new.png");
+		outputFile = FS.readFile("/input-new.png");
 	} catch (e) {
 		/* Cleaning up input png from MEMFS */
 		FS.unlink("/input.png");
@@ -15,7 +15,7 @@
 	FS.unlink("/input.png");
 
 	return {
-		"data": file
+		"data": outputFile
 	};
 }
 

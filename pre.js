@@ -48,5 +48,5 @@ function pngquant(file, options, printF) {
 			});
 		}],
 		"arguments": args,
-		"ENVIRONMENT": "SHELL" // maximum compatibility?
+		// "ENVIRONMENT": "SHELL" // maximum compatibility?
 	};
